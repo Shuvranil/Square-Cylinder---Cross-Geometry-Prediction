@@ -1,0 +1,128 @@
+================================================================================
+Cross-Geometry Prediction: Square Cylinder at Re=35
+Using Circular Cylinder Trained Model
+================================================================================
+
+EXPERIMENT OVERVIEW
+--------------------------------------------------------------------------------
+This experiment demonstrates cross-geometry prediction - using a neural network
+trained on CIRCULAR cylinder data to predict flow past a SQUARE cylinder.
+
+IMPORTANT NOTE: This is an experimental demonstration. Significant errors are
+expected because the model learned circular cylinder flow patterns, not square
+cylinder patterns.
+
+GROUND TRUTH GENERATION (LBM)
+--------------------------------------------------------------------------------
+Simulation: Square Cylinder at Re=35
+Code: lbm_square_cylinder.cpp
+Parameters:
+  - Domain: 400 x 100
+  - Square center: (100, 50)
+  - Square side: 20
+  - Tolerance: 1e-5
+  - Reynolds number: 35
+
+Results:
+  - Converged at iteration 4907
+  - Max difference: 9.997247e-06
+  - Output file: square_cylinder_re35.txt
+
+PREDICTION MODEL
+--------------------------------------------------------------------------------
+Model Source: Circular cylinder PINN (trained on Re=10, 20, 30)
+Architecture: 8 hidden layers × 100 neurons
+Training: Quick retrain (1000 epochs for demonstration)
+  - Initial loss: 3.61e-01
+  - Final loss: 3.07e-03
+  - Best loss: 2.45e-03 (at epoch 800)
+  - Training time: 247.90 seconds
+
+PREDICTION RESULTS
+--------------------------------------------------------------------------------
+Target: Square Cylinder at Re=35
+Method: Use circular cylinder model (geometry mismatch)
+
+ERROR METRICS:
+======================================================================
+MSE (u-component): 1.122053e-04
+MSE (v-component): 4.079937e-05
+MSE (total): 1.530046e-04
+Relative Error (u): 10.1903%
+Relative Error (v): 68.0619%
+======================================================================
+
+ANALYSIS
+--------------------------------------------------------------------------------
+1. U-Velocity Error (10.19%):
+   - Relatively moderate error
+   - Circular model captures general streamwise flow patterns
+   - Square corners create different wake structure than circular
+
+2. V-Velocity Error (68.06%):
+   - Very high error as expected
+   - V-component is sensitive to geometry
+   - Square corners create sharp flow separation
+   - Circular model cannot capture this behavior
+
+3. Overall Performance:
+   - MSE total: 1.53e-04 (3x higher than circular Re=35 prediction)
+   - Demonstrates importance of geometry-specific training
+   - Cross-geometry transfer learning has significant limitations
+
+COMPARISON WITH CIRCULAR CYLINDER PREDICTION
+--------------------------------------------------------------------------------
+Circular Cylinder Re=35 (Same Geometry):
+  - MSE (u): 4.62e-05
+  - MSE (v): 4.67e-06
+  - Relative Error (u): 6.58%
+  - Relative Error (v): 25.11%
+
+Square Cylinder Re=35 (Cross-Geometry):
+  - MSE (u): 1.12e-04  (2.4x worse)
+  - MSE (v): 4.08e-05  (8.7x worse)
+  - Relative Error (u): 10.19%  (1.5x worse)
+  - Relative Error (v): 68.06%  (2.7x worse)
+
+KEY INSIGHT: Geometry mismatch significantly degrades prediction accuracy,
+especially for cross-flow velocity component (v).
+
+GENERATED FILES
+--------------------------------------------------------------------------------
+Code:
+  - predict_square_with_circular_model.py - Cross-geometry prediction script
+  - lbm_square_cylinder.cpp - Modified for Re=35
+
+Data:
+  - square_cylinder_re35.txt - LBM ground truth
+
+Visualization:
+  - square_cylinder_cross_geometry_prediction.png - Comparison plots
+
+CONCLUSIONS
+--------------------------------------------------------------------------------
+1. Cross-geometry prediction is possible but has significant errors
+2. Circular model cannot capture square cylinder flow features:
+   - Sharp corner separation
+   - Different wake structure
+   - Vortex shedding patterns
+
+3. For accurate square cylinder predictions, need:
+   - Training data from square cylinder simulations
+   - Geometry-specific or multi-geometry model
+
+4. This experiment demonstrates:
+   ✓ Model can generalize within same geometry (Re interpolation/extrapolation)
+   ✗ Model cannot generalize across different geometries without specific training
+
+RECOMMENDATIONS
+--------------------------------------------------------------------------------
+For production use with square cylinders:
+1. Generate LBM data for square cylinders at multiple Re
+2. Train a new model specifically for square geometry
+3. OR: Use shape-parametric model trained on both geometries
+4. OR: Use transfer learning with fine-tuning on square cylinder data
+
+================================================================================
+End of Cross-Geometry Prediction Report
+================================================================================
